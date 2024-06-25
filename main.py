@@ -1,10 +1,17 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import time
+from PIL import Image
 
 # path where the player_coordinates.txt file is located.  Its either in `cmap/run` or where this mod's `.jar` file is located.
-# path = r"C:\Users\yuane\Documents\cmap\run\player_coordinates.txt"
-path = ""
+path = "player_coordinates.txt"
+
+def generate_image(coordinates, resolution):
+    image = np.ones((resolution, resolution, 3), dtype=np.uint8) * 255
+    offset = resolution // 2
+    image[coordinates[:, 0] + offset, coordinates[:, 1] + offset] = [0, 0, 0]
+
+    image = Image.fromarray(image)
+    image.save("map.png")
 
 start_time = time.time()
 coordinates = [(0, 0)]
@@ -14,22 +21,9 @@ with open(path) as file:
         coordinates.append((round(x), round(y)))
 
 minecraft_coordinates = np.array(coordinates)
+resolution = 32768
 
-image_size = 2048
-image = np.ones((image_size, image_size, 3), dtype=np.uint8) * 255
-
-offset = image_size // 2
-
-# fast af
-image[minecraft_coordinates[:, 0] + offset, minecraft_coordinates[:, 1] + offset] = [0, 0, 0]
-
-# slow mf
-# for x, y in minecraft_coordinates:
-#     image[x + offset, y + offset] = [0, 0, 0]
-
-plt.imshow(image)
-plt.axis('off')
-plt.savefig('map.png', bbox_inches='tight', pad_inches=0)
+generate_image(minecraft_coordinates, resolution)
 
 end_time = time.time()
 print("Time taken: {:.2f} seconds".format(end_time - start_time))
